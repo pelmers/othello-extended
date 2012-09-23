@@ -17,6 +17,11 @@ MINIMAX = 3
 ALPHABETA = 4
 
 class GameBoard(object):
+    """
+    GameBoard implements the board itself and methods associated with it
+    Handles tasks such as output, move playing, game over conditions,
+    listing available moves, scores
+    """
     def __init__(self,white_char='O',black_char='X',white_source="human", black_source="human",starting_board="default"):
         self.BORDER=2
         self.EMPTY=0

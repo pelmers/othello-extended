@@ -16,7 +16,11 @@ ALPHABETA = 4
 
 class OthelloAI(object):
     """
-    OthelloAI
+    OthelloAI implements the AI strategies used to play Othello:
+    Random strategy plays a random move, chosen from all possible moves
+    Shallow is essentially a 1-ply search: it picks the move that appears to be the best
+    Minimax searches all nodes of a game tree to given depth to find a move
+    Alphabeta uses minimax with cutoffs to simplify the game tree
     """
     def __init__(self, gameObject, side, strat=RANDOM,start="default"):
         self.game = gameObject
