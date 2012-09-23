@@ -231,4 +231,4 @@ class OthelloAI(object):
             if emptys < 8:
                 return self.alphabeta_search(emptys)
             #else:
-            return self.alphabeta_search(1)
+            return self.alphabeta_search(3)
