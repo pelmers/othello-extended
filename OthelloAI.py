@@ -7,11 +7,18 @@ Peter Elmers
 
 import random, sys
 
+# possible sources
+HUMAN = 0
+RANDOM = 1
+SHALLOW = 2
+MINIMAX = 3
+ALPHABETA = 4
+
 class OthelloAI(object):
     """
     OthelloAI
     """
-    def __init__(self, gameObject, side, strat="random",start="default"):
+    def __init__(self, gameObject, side, strat=RANDOM,start="default"):
         self.game = gameObject
         self.side = side
         self.strat = strat
@@ -30,8 +37,8 @@ class OthelloAI(object):
         0,120,-20, 20,  5,  5, 20,-20,120,  0,
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0]
 
-        # lookup in dicts is faster
-        self.weights = dict((k,v) for k,v in enumerate(self.weights))
+        # is lookup in dicts faster than list?
+        # self.weights = dict((k,v) for k,v in enumerate(self.weights))
 
         #self.weights = dict((pos,5) for pos in range(11,89))
         #for i in [11,18,81,88]:
@@ -59,9 +66,9 @@ class OthelloAI(object):
         score = 0
         if self.game.test_end():
             if self.game.find_victor()[0] == side:
-                return 9999999 # positive infinity
+                return float("inf") # positive infinity
             elif self.game.find_victor()[0] == -side:
-                return -9999999 # negative infinity
+                return float("-inf")  # negative infinity
         for pos in range(11,89):
             if self.game.board[pos] == side:
                 score += self.weights[pos]
@@ -100,7 +107,7 @@ class OthelloAI(object):
         """
         if ply == 0 or self.game.test_end():
             return self.evaluate_state(side) 
-        score = -9999999999
+        score = float("-inf")
         current_board = self.game.board[:]
         for pos in range(11,89):
             if self.game.make_move(pos,side) == False:
@@ -117,7 +124,7 @@ class OthelloAI(object):
         """
         if ply == 0 or self.game.test_end():
             return self.evaluate_state(side)
-        score = 99999999999
+        score = float("inf")
         current_board = self.game.board[:]
         for pos in range(11,89):
             if self.game.make_move(pos,side) == False: 
@@ -205,11 +212,11 @@ class OthelloAI(object):
         self.move_count+=1
         if self.board_start == "random" and self.move_count <= 5:
             return self.random_strat()
-        if self.strat == "random":
+        if self.strat == RANDOM:
             return self.random_strat()
-        elif self.strat == "shallow":
+        elif self.strat == SHALLOW:
             return self.shallow_search()
-        elif self.strat == "minimax":
+        elif self.strat == MINIMAX:
             # count the number of empty squares
             # return self.minimax_search(3)
             emptys = sum([1 for i in range(11,89) if self.game.board[i] == self.game.EMPTY])
@@ -218,8 +225,8 @@ class OthelloAI(object):
                 # search to the end of the game
                 return self.minimax_search(emptys)
             #else:
-            return self.minimax_search(1)
-        elif self.strat == "ab":
+            return self.minimax_search(3)
+        elif self.strat == ALPHABETA:
             emptys = sum([1 for i in range(11,89) if self.game.board[i] == self.game.EMPTY])
             if emptys < 8:
                 return self.alphabeta_search(emptys)

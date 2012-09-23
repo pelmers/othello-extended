@@ -10,11 +10,17 @@ import sys, time
 
 # screen width for progress bar, assumed 80
 WID = 80
+HUMAN = 0
+RANDOM = 1
+SHALLOW = 2
+MINIMAX = 3
+ALPHABETA = 4
 
 class GameBoard(object):
     def __init__(self,white_char='O',black_char='X',white_source="human", black_source="human",starting_board="default"):
         self.BORDER=2
         self.EMPTY=0
+        # WHITE and BLACK must be opposite integers
         self.WHITE=1
         self.BLACK=-1
         # generate board as list of 100 integers, 8x8 enclosed in 10x10 with borders
@@ -69,9 +75,8 @@ class GameBoard(object):
         for direction in self.directions:
             next_pos = move_pos + direction
             if self.board[next_pos] == -side:
-                repeating = True
                 flip_this_dir = [next_pos]
-                while repeating:
+                while True:
                     next_pos += direction
                     if (self.board[next_pos] == self.EMPTY) or (self.board[next_pos] == self.BORDER):
                         break
@@ -107,10 +112,7 @@ class GameBoard(object):
         if to_flip == False:
             return False
         for pos in to_flip:
-            if self.board[pos] == self.WHITE:
-                self.board[pos] = self.BLACK
-            else:
-                self.board[pos] = self.WHITE
+            self.board[pos] = side
         self.board[move_pos] = side
         return True
 
@@ -119,7 +121,7 @@ class GameBoard(object):
         Return a move by querying the appropriate source.
         """
         if source == "human":
-            while 1:
+            while True:
                 possible_moves = []
                 for pos in range(11,89):
                     if self.legal_move(pos, side):
@@ -223,17 +225,17 @@ def menu(choices_list,message):
     choices_dict = dict(enumerate(choices_list))
     for k,v in choices_dict.items():
         print "%s) %s" % (k+1,v)
-    choice = choices_dict[int(raw_input("%s" % (message)))-1]
+    return int(raw_input(message))-1
     print "%s selected" % (choice)
     return choice
 
 
 def main():
-    sources = ['human','random','shallow','minimax','ab']
+    sources = ['Human','Random','Shallow searcher (1-ply)','Brute Minimax (3-ply)','Alphabeta pruning (3-ply)']
     black_source = menu(sources,"Source for black player: ")
     white_source = menu(sources,"Source for white player: ")
     sim_number = 0
-    if white_source != "human" and black_source != "human":
+    if white_source != HUMAN and black_source != HUMAN:
         if raw_input("Do you want to simulate games? [Y/n] ") in ['y','Y','yes',"Yes"]:
             sim_number = int(raw_input("How many games to simulate? "))
             randomize = raw_input("Do you want to randomize game starts? ")
