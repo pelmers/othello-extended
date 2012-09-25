@@ -35,6 +35,7 @@ class GameBoard(object):
                     self.board[i] = self.BORDER
         self.board[44] = self.board[55] = self.WHITE
         self.board[45] = self.board[54] = self.BLACK
+        self.board_range = [i for i in range(11,89) if self.board[i] != self.BORDER]
         self.white_char = white_char
         self.black_char = black_char
         self.white_source = white_source
@@ -128,7 +129,7 @@ class GameBoard(object):
         if source == "human":
             while True:
                 possible_moves = []
-                for pos in range(11,89):
+                for pos in self.board_range:
                     if self.legal_move(pos, side):
                         possible_moves.append(str(pos))
                 print "Possible moves: %s" % (' '.join(possible_moves))
@@ -153,7 +154,7 @@ class GameBoard(object):
         Return True if the side has any possible moves.
         If no moves are possible, return False.
         """
-        for pos in range(11,89):
+        for pos in self.board_range:
             if self.legal_move(pos, side):
                 return True
         return False
@@ -164,7 +165,7 @@ class GameBoard(object):
         """
         if self.unplayed == 2:
             return True
-        if sum([1 for i in range(11,89) if self.board[i] == self.EMPTY]) == 0:
+        if sum([1 for i in self.board_range if self.board[i] == self.EMPTY]) == 0:
             return True
         return False
         
@@ -200,8 +201,8 @@ class GameBoard(object):
         Find the winner and scores of each player of the game.
         Assume that the game is finished.
         """
-        white_count = sum([1 for i in range(11,89) if (self.board[i]==self.WHITE)])
-        black_count = sum([1 for i in range(11,89) if (self.board[i]==self.BLACK)])
+        white_count = sum([1 for i in self.board_range if (self.board[i]==self.WHITE)])
+        black_count = sum([1 for i in self.board_range if (self.board[i]==self.BLACK)])
         if white_count > black_count:
             return self.WHITE, white_count, black_count
         elif black_count > white_count:

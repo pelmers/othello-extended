@@ -44,7 +44,7 @@ class OthelloAI(object):
         # is lookup in dicts faster than list?
         # self.weights = dict((k,v) for k,v in enumerate(self.weights))
 
-        #self.weights = dict((pos,5) for pos in range(11,89))
+        #self.weights = dict((pos,5) for pos in self.game.board_range)
         #for i in [11,18,81,88]:
         #    self.weights[i] = 120
         #for i in [12,22,21,17,27,28,71,72,82,87,77,78]:
@@ -56,11 +56,11 @@ class OthelloAI(object):
         """
         Find a move by randomly choosing from all possibilities.
         """
-        possible_moves = []
-        for pos in range(11,89):
-            if self.game.legal_move(pos, self.side):
-                possible_moves.append(pos)
-        return random.choice(possible_moves) 
+        # possible_moves = []
+        # for pos in self.game.board_range:
+        #    if self.game.legal_move(pos, self.side):
+        #        possible_moves.append(pos)
+        return random.choice([p for p in self.game.board_range if self.game.legal_move(p,self.side)])
 
     def evaluate_state(self,side):
         """
@@ -70,10 +70,10 @@ class OthelloAI(object):
         score = 0
         if self.game.test_end():
             if self.game.find_victor()[0] == side:
-                return float("inf") # positive infinity
+                return float("inf") # positive infinity because win
             elif self.game.find_victor()[0] == -side:
-                return float("-inf")  # negative infinity
-        for pos in range(11,89):
+                return float("-inf")  # negative infinity because loss
+        for pos in self.game.board_range:
             if self.game.board[pos] == side:
                 score += self.weights[pos]
             elif self.game.board[pos] == -side:
@@ -84,24 +84,22 @@ class OthelloAI(object):
         """
         Return a move that results in the best outcome immediately following it.
         """
-        original_board = self.game.board[:]
-        max_score = False
-        scores = dict((pos,None) for pos in range(11,89))
-        for pos in range(11,89):
+        original_board = self.game.board[:] #backup original
+        max_score = float("-inf")
+        # initialize dictionary of score for each position
+        scores = dict((pos,None) for pos in self.game.board_range)
+        for pos in self.game.board_range:
            if self.game.make_move(pos,self.side)==False:
-               continue
+               continue # illegal move
            else:
                score = self.evaluate_state(self.side)
                scores[pos]=score
-               self.game.board = original_board[:]
+               self.game.board = original_board[:] # reset board
         for pos, score in scores.iteritems():
-           if score != None:
-               if max_score == False:
-                   max_score = score
-                   move = pos
-               if score > max_score:
-                   move = pos
-                   max_score = score
+           if score and score >= max_score:
+               # set the new best move
+               move = pos
+               max_score = score
         return move
 
     def maximize(self,ply,side):
@@ -113,11 +111,12 @@ class OthelloAI(object):
             return self.evaluate_state(side) 
         score = float("-inf")
         current_board = self.game.board[:]
-        for pos in range(11,89):
+        for pos in self.game.board_range:
             if self.game.make_move(pos,side) == False:
                 continue
             self.game.side = side
             score = max(score,self.minimize(ply-1,-side))
+            # reset board for next iteration
             self.game.board = current_board[:]
         return score
 
@@ -130,12 +129,12 @@ class OthelloAI(object):
             return self.evaluate_state(side)
         score = float("inf")
         current_board = self.game.board[:]
-        for pos in range(11,89):
+        for pos in self.game.board_range:
             if self.game.make_move(pos,side) == False: 
                 continue
             self.game.side = side
             score = min(score,self.maximize(ply-1,-side))
-            self.game.board = current_board[:]
+            self.game.board = current_board[:] # resetting board
         return score
 
     def minimax_search(self,maxply):
@@ -144,13 +143,13 @@ class OthelloAI(object):
         """
         current_board = self.game.board[:]
         best_score = None
-        for pos in range(11,89):
+        for pos in self.game.board_range:
             if self.game.make_move(pos,self.game.side) == False:
                 continue
             result_score = self.minimize(maxply,-self.game.side)
             self.game.board = current_board[:]
             self.game.side = self.side
-            if best_score is None or result_score > best_score:
+            if not best_score or result_score > best_score:
                 best_score = result_score 
                 best_move = pos
         return best_move
@@ -163,13 +162,14 @@ class OthelloAI(object):
         if ply == 0 or self.game.test_end():
             return self.evaluate_state(side)
         current_board = self.game.board[:]
-        for pos in range(11,89):
+        for pos in self.game.board_range:
             if self.game.make_move(pos,side) == False:
                 continue
             self.game.side = side
             alpha = max(alpha,self.ab_minimize(ply-1,-side,alpha,beta))
             self.game.board = current_board[:]
             if beta <= alpha:
+                # cutoff triggered
                 break
         return alpha
 
@@ -181,13 +181,14 @@ class OthelloAI(object):
         if ply == 0 or self.game.test_end():
             return self.evaluate_state(side)
         current_board = self.game.board[:]
-        for pos in range(11,89):
+        for pos in self.game.board_range:
             if self.game.make_move(pos,side) == False: 
                 continue
             self.game.side = side
             beta = min(beta,self.ab_maximize(ply-1,-side,alpha,beta))
             self.game.board = current_board[:]
             if beta <= alpha:
+                # cutoff trigger
                 break
         return beta
 
@@ -197,13 +198,13 @@ class OthelloAI(object):
         """
         current_board = self.game.board[:]
         best_score = None
-        for pos in range(11,89):
+        for pos in self.game.board_range:
             if self.game.make_move(pos,self.game.side) == False:
                 continue
-            result_score = self.ab_minimize(maxply,-self.game.side,-9999,9999)
+            result_score = self.ab_minimize(maxply,-self.game.side,float("-inf"),float("inf"))
             self.game.board = current_board[:]
             self.game.side = self.side
-            if best_score is None or result_score > best_score:
+            if not best_score or result_score > best_score:
                 best_score = result_score 
                 best_move = pos
         return best_move
@@ -222,8 +223,7 @@ class OthelloAI(object):
             return self.shallow_search()
         elif self.strat == MINIMAX:
             # count the number of empty squares
-            # return self.minimax_search(3)
-            emptys = sum([1 for i in range(11,89) if self.game.board[i] == self.game.EMPTY])
+            emptys = sum([1 for i in self.game.board_range if self.game.board[i] == self.game.EMPTY])
             # return self.minimax_search(1)
             if emptys < 8:
                 # search to the end of the game
@@ -231,7 +231,7 @@ class OthelloAI(object):
             #else:
             return self.minimax_search(3)
         elif self.strat == ALPHABETA:
-            emptys = sum([1 for i in range(11,89) if self.game.board[i] == self.game.EMPTY])
+            emptys = sum([1 for i in self.game.board_range if self.game.board[i] == self.game.EMPTY])
             if emptys < 8:
                 return self.alphabeta_search(emptys)
             #else:
