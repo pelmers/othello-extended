@@ -96,10 +96,9 @@ class OthelloAI(object):
                scores[pos]=score
                self.game.board = original_board[:] # reset board
         for pos, score in scores.iteritems():
-           if score and score >= max_score:
-               # set the new best move
-               move = pos
-               max_score = score
+            if score != None and score >= max_score:
+                move = pos
+                max_score = score
         return move
 
     def maximize(self,ply,side):
