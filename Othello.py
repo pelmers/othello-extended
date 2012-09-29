@@ -122,11 +122,11 @@ class GameBoard(object):
         self.board[move_pos] = side
         return True
 
-    def get_move(self, side, source="human"):
+    def get_move(self, side, source=HUMAN):
         """
         Return a move by querying the appropriate source.
         """
-        if source == "human":
+        if source == HUMAN:
             while True:
                 possible_moves = []
                 for pos in self.board_range:
