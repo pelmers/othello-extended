@@ -31,7 +31,7 @@ class GameBoard(object):
         # generate board as list of 100 integers, 8x8 enclosed in 10x10 with borders
         self.board=[self.EMPTY for i in range(100)]
         for i in range(100):
-                if (str(i)[-1] == "0" or str(i)[-1] == "9" or i<10 or i>89):
+                if (i % 10 == 0 or i % 10 == 9 or i<10 or i>89):
                     self.board[i] = self.BORDER
         self.board[44] = self.board[55] = self.WHITE
         self.board[45] = self.board[54] = self.BLACK
