@@ -283,13 +283,13 @@ def main():
                 Playing = game.play_turn(show=False)
             victor, whites, blacks = game.find_victor()
             if victor == game.WHITE:
-                output += "White wins %s to %s \n" % (whites, blacks)
+                #output += "White wins %s to %s \n" % (whites, blacks)
                 white_wins += 1
             elif victor == game.BLACK:
-                output += "Black wins %s to %s \n" % (blacks, whites)
+                #output += "Black wins %s to %s \n" % (blacks, whites)
                 black_wins += 1
             else:
-                output += "Game tied %s to %s \n" % (whites, blacks)
+                #output += "Game tied %s to %s \n" % (whites, blacks)
                 draws += 1
         End = time.clock()
         print output
